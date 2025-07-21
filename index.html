@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Terraform Deployment Guide</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Lighter blue-gray background */
+            color: #2d3748; /* Darker text */
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .section-card {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 3rem;
+            border-left: 8px solid #3b82f6; /* Blue accent border */
+        }
+        .code-block {
+            background-color: #1a202c; /* Darker background for code */
+            color: #e2e8f0; /* Light text for code */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .screenshot-placeholder {
+            width: 100%;
+            max-width: 900px;
+            height: 350px; /* Slightly larger height for placeholders */
+            background-color: #cbd5e0; /* Medium gray for placeholder background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            margin: 2rem auto;
+            color: #4a5568;
+            font-weight: 600;
+            text-align: center;
+            border: 3px dashed #718096;
+            font-size: 1.1rem;
+        }
+        h1, h2, h3 {
+            color: #1a202c; /* Very dark headings */
+            font-weight: 700;
+        }
+        .nav-link {
+            transition: all 0.3s ease-in-out;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .nav-link:hover {
+            background-color: #ebf8ff; /* Light blue background on hover */
+            color: #2b6cb0; /* Darker blue text on hover */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg py-5">
+        <div class="container flex flex-col sm:flex-row justify-between items-center">
+            <a href="#" class="text-3xl font-extrabold text-gray-900 mb-4 sm:mb-0">Terraform AWS Automation</a>
+            <nav>
+                <ul class="flex flex-wrap justify-center space-x-4 sm:space-x-6">
+                    <li><a href="#introduction" class="nav-link text-gray-700 hover:bg-blue-50 hover:text-blue-700">Intro</a></li>
+                    <li><a href="#ec2" class="nav-link text-gray-700 hover:bg-blue-50 hover:text-blue-700">EC2</a></li>
+                    <li><a href="#s3" class="nav-link text-gray-700 hover:bg-blue-50 hover:text-blue-700">S3</a></li>
+                    <li><a href="#vpc" class="nav-link text-gray-700 hover:bg-blue-50 hover:text-blue-700">VPC</a></li>
+                    <li><a href="#conclusion" class="nav-link text-gray-700 hover:bg-blue-50 hover:text-blue-700">Conclusion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-12">
+        <div class="container">
+
+            <!-- Introduction Section -->
+            <section id="introduction" class="section-card">
+                <h1 class="text-4xl mb-8 text-center text-gray-800">Automating AWS Infrastructure with Terraform</h1>
+                <p class="text-lg leading-relaxed mb-6 text-gray-700">
+                    This guide delves into the power of Terraform for managing your Amazon Web Services (AWS) infrastructure. Terraform, an Infrastructure as Code (IaC) tool, allows you to define your cloud resources in human-readable configuration files, enabling consistent, repeatable, and version-controlled deployments. Say goodbye to manual clicks and hello to automated, scalable infrastructure!
+                </p>
+                <p class="text-lg leading-relaxed mb-6 text-gray-700">
+                    We'll cover the essentials: setting up your environment, provisioning virtual machines (EC2), managing object storage (S3), and building custom virtual networks (VPC). Each topic is accompanied by practical Terraform code examples and clear instructions, along with placeholders for visual aids.
+                </p>
+                <h2 class="text-3xl mt-10 mb-5 text-gray-800">Getting Started: Prerequisites</h2>
+                <ul class="list-disc list-inside text-lg leading-relaxed mb-6 text-gray-700 pl-4">
+                    <li>An active AWS Account with appropriate IAM permissions.</li>
+                    <li>AWS Command Line Interface (CLI) installed and configured.</li>
+                    <li>Terraform CLI installed on your local development machine.</li>
+                    <li>Familiarity with basic cloud computing and networking concepts.</li>
+                </ul>
+                <div class="screenshot-placeholder">
+                    Screenshot: AWS CLI Configuration Success / Terraform `version` Output
+                </div>
+            </section>
+
+            <!-- EC2 Section -->
+            <section id="ec2" class="section-card">
+                <h2 class="text-3xl mb-8 text-center text-gray-800">1. Deploying EC2 Instances with Terraform</h2>
+                <p class="text-lg leading-relaxed mb-6 text-gray-700">
+                    Amazon EC2 (Elastic Compute Cloud) provides scalable computing capacity in the AWS cloud. Terraform simplifies the process of defining and launching EC2 instances, ensuring your virtual servers are provisioned exactly as you intend.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Define Provider & Variables</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            Start by declaring the AWS provider and defining key variables like region, instance type, and AMI ID.
+                        </p>
+                        <pre class="code-block"><code>
+# providers.tf
+provider "aws" {
+  region = var.aws_region
+}
+
+# variables.tf
+variable "aws_region" {
+  description = "The AWS region to deploy resources in"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type (e.g., t2.micro, m5.large)"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "ami_id" {
+  description = "AMI ID for the EC2 instance (e.g., Amazon Linux 2 AMI for us-east-1)"
+  type        = string
+  default     = "ami-053b0d53c279acc90" # Example: Amazon Linux 2 AMI
+}
+                        </code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Create Security Group & EC2 Resource</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            A security group acts as a virtual firewall. We'll create one to allow SSH and HTTP, then define the EC2 instance.
+                        </p>
+                        <pre class="code-block"><code>
+# ec2.tf
+resource "aws_security_group" "web_access_sg" {
+  name        = "web-access-security-group"
+  description = "Allow web and SSH access"
+  vpc_id      = aws_vpc.main_vpc.id # Assuming VPC is defined elsewhere
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # For demonstration, restrict in production
+    description = "Allow SSH from anywhere"
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # For demonstration, restrict in production
+    description = "Allow HTTP from anywhere"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # Allow all outbound traffic
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "WebAccessSG"
+  }
+}
+
+resource "aws_instance" "my_web_server" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  key_name               = "your-ssh-key-name" # IMPORTANT: Replace with your actual key pair name
+  vpc_security_group_ids = [aws_security_group.web_access_sg.id]
+  # subnet_id              = aws_subnet.public_subnet.id # Uncomment if using custom VPC/subnet
+
+  tags = {
+    Name = "TerraformWebServer"
+  }
+}
+
+output "web_server_public_ip" {
+  description = "Public IP address of the web server"
+  value       = aws_instance.my_web_server.public_ip
+}
+                        </code></pre>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    Screenshot: EC2 Instance Dashboard in AWS Console
+                </div>
+            </section>
+
+            <!-- S3 Section -->
+            <section id="s3" class="section-card">
+                <h2 class="text-3xl mb-8 text-center text-gray-800">2. Managing S3 Buckets with Terraform</h2>
+                <p class="text-lg leading-relaxed mb-6 text-gray-700">
+                    Amazon S3 (Simple Storage Service) offers highly scalable, durable, and available object storage. Terraform allows you to define S3 buckets, their configurations, and access policies with ease.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Create an S3 Bucket</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            Define a unique bucket name and specify its access control list (ACL). For static websites, you might set `acl = "public-read"`.
+                        </p>
+                        <pre class="code-block"><code>
+# s3.tf
+resource "aws_s3_bucket" "static_website_bucket" {
+  bucket = "your-unique-static-website-name-2025" # IMPORTANT: Must be globally unique
+  acl    = "private" # Start private, adjust for public website hosting
+
+  tags = {
+    Name        = "MyTerraformStaticWebsite"
+    Environment = "Development"
+  }
+}
+
+# Optional: Configure for static website hosting
+resource "aws_s3_bucket_website_configuration" "website_config" {
+  bucket = aws_s3_bucket.static_website_bucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+}
+
+# Optional: Block all public access (recommended for most buckets)
+resource "aws_s3_bucket_public_access_block" "block_public_access" {
+  bucket = aws_s3_bucket.static_website_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+output "s3_bucket_endpoint" {
+  description = "Website endpoint for the S3 bucket"
+  value       = aws_s3_bucket_website_configuration.website_config.website_endpoint
+}
+                        </code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Terraform Commands for S3</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            After defining your S3 resources, run these commands to apply the changes.
+                        </p>
+                        <pre class="code-block"><code>
+# Initialize Terraform in your project directory
+terraform init
+
+# Review the plan before applying changes
+terraform plan
+
+# Apply the changes to create the S3 bucket
+terraform apply --auto-approve
+
+# To destroy the resources later
+# terraform destroy --auto-approve
+                        </code></pre>
+                        <div class="screenshot-placeholder mt-8">
+                            Screenshot: S3 Bucket List in AWS Console
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VPC Section -->
+            <section id="vpc" class="section-card">
+                <h2 class="text-3xl mb-8 text-center text-gray-800">3. Building a Custom VPC with Terraform</h2>
+                <p class="text-lg leading-relaxed mb-6 text-gray-700">
+                    A Virtual Private Cloud (VPC) is your isolated network in AWS. Terraform gives you granular control to define your VPC, subnets, route tables, and internet gateways, creating a secure and customized network environment.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Define VPC and Subnets</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            Start by defining the VPC's CIDR block, then create public and private subnets within it.
+                        </p>
+                        <pre class="code-block"><code>
+# vpc.tf
+resource "aws_vpc" "main_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "TerraformCustomVPC"
+  }
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id            = aws_vpc.main_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "${var.aws_region}a" # Example AZ
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet"
+  }
+}
+
+resource "aws_subnet" "private_subnet" {
+  vpc_id            = aws_vpc.main_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.aws_region}b" # Example AZ
+
+  tags = {
+    Name = "PrivateSubnet"
+  }
+}
+
+output "vpc_id_output" {
+  description = "ID of the created VPC"
+  value       = aws_vpc.main_vpc.id
+}
+                        </code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl mb-4 text-gray-800">Internet Gateway & Route Tables</h3>
+                        <p class="text-md leading-relaxed mb-4 text-gray-700">
+                            An Internet Gateway enables public internet access. Route tables dictate traffic flow within your VPC.
+                        </p>
+                        <pre class="code-block"><code>
+# network_components.tf
+resource "aws_internet_gateway" "main_igw" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "MainInternetGateway"
+  }
+}
+
+resource "aws_route_table" "public_route_table" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main_igw.id
+  }
+
+  tags = {
+    Name = "PublicRouteTable"
+  }
+}
+
+resource "aws_route_table_association" "public_subnet_association" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "PrivateRouteTable"
+  }
+  # Private subnets typically don't have a direct route to IGW
+}
+
+resource "aws_route_table_association" "private_subnet_association" {
+  subnet_id      = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.private_route_table.id
+}
+                        </code></pre>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    Screenshot: VPC Dashboard in AWS Console
+                </div>
+            </section>
+
+            <!-- Conclusion -->
+            <section id="conclusion" class="section-card text-center">
+                <h2 class="text-3xl mb-6 text-gray-800">Conclusion: Your Infrastructure, Automated</h2>
+                <p class="text-lg leading-relaxed mb-4 text-gray-700">
+                    Congratulations! You've explored how to define and deploy core AWS services like EC2, S3, and VPC using Terraform. This Infrastructure as Code approach is a cornerstone of modern cloud operations, providing immense benefits in terms of consistency, scalability, and disaster recovery.
+                </p>
+                <p class="text-lg leading-relaxed mb-4 text-gray-700">
+                    Remember to always manage your state files securely and to use `terraform destroy` carefully to avoid unintended resource deletion and costs. Keep experimenting and building!
+                </p>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container text-center">
+            <p>&copy;AYUSHI BHUTANI.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
